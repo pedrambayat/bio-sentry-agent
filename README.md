@@ -404,11 +404,7 @@ pip install -r requirements.txt
 
 ## Configuration
 
-Copy `.env.example` to `.env` and fill in the values:
-
-```bash
-cp .env.example .env
-```
+Include `ANTHROPIC_API_KEY=` and `SONDERA_MODE=local` in `.env`.
 
 ```dotenv
 # Required for running the agent (Tier 3 eval + demo)
