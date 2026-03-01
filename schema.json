@@ -1,0 +1,181 @@
+{
+  "Bio_Sentry_Agent": {
+    "entityTypes": {
+      "Agent": {
+        "shape": {
+          "type": "Record",
+          "attributes": {
+            "name": {
+              "type": "String"
+            },
+            "provider_id": {
+              "type": "String"
+            },
+            "tools": {
+              "type": "Set",
+              "element": {
+                "type": "Entity",
+                "name": "Tool"
+              }
+            }
+          }
+        }
+      },
+      "Tool": {
+        "shape": {
+          "type": "Record",
+          "attributes": {
+            "name": {
+              "type": "String"
+            },
+            "description": {
+              "type": "String"
+            }
+          }
+        }
+      },
+      "Role": {
+        "enum": [
+          "user",
+          "model",
+          "system",
+          "tool"
+        ]
+      },
+      "Message": {
+        "memberOfTypes": [
+          "Trajectory"
+        ],
+        "shape": {
+          "type": "Record",
+          "attributes": {
+            "content": {
+              "type": "String"
+            },
+            "role": {
+              "type": "Entity",
+              "name": "Role"
+            }
+          }
+        }
+      },
+      "Trajectory": {
+        "shape": {
+          "type": "Record",
+          "attributes": {
+            "step_count": {
+              "type": "Long"
+            }
+          }
+        }
+      }
+    },
+    "actions": {
+      "biosecurity_screener": {
+        "appliesTo": {
+          "principalTypes": [
+            "Agent"
+          ],
+          "resourceTypes": [
+            "Trajectory"
+          ],
+          "context": {
+            "type": "Record",
+            "attributes": {
+              "parameters": {
+                "type": "Record",
+                "required": false,
+                "attributes": {
+                  "sequence": {
+                    "type": "String"
+                  }
+                }
+              },
+              "parameters_json": {
+                "type": "String",
+                "required": false
+              },
+              "response": {
+                "type": "Record",
+                "required": false,
+                "attributes": {
+                  "value": {
+                    "type": "String"
+                  }
+                }
+              },
+              "response_json": {
+                "type": "String",
+                "required": false
+              }
+            }
+          }
+        }
+      },
+      "synthesis_order": {
+        "appliesTo": {
+          "principalTypes": [
+            "Agent"
+          ],
+          "resourceTypes": [
+            "Trajectory"
+          ],
+          "context": {
+            "type": "Record",
+            "attributes": {
+              "parameters": {
+                "type": "Record",
+                "required": false,
+                "attributes": {
+                  "sequence": {
+                    "type": "String"
+                  },
+                  "provider": {
+                    "type": "String"
+                  },
+                  "homology_score_int": {
+                    "type": "Long"
+                  },
+                  "threat_name": {
+                    "type": "String"
+                  },
+                  "human_approved": {
+                    "type": "Boolean",
+                    "required": false
+                  }
+                }
+              },
+              "parameters_json": {
+                "type": "String",
+                "required": false
+              },
+              "response": {
+                "type": "Record",
+                "required": false,
+                "attributes": {
+                  "value": {
+                    "type": "String"
+                  }
+                }
+              },
+              "response_json": {
+                "type": "String",
+                "required": false
+              }
+            }
+          }
+        }
+      },
+      "Prompt": {
+        "appliesTo": {
+          "principalTypes": [
+            "Agent"
+          ],
+          "resourceTypes": [
+            "Message"
+          ]
+        }
+      }
+    }
+  }
+}
