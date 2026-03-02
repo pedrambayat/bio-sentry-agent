@@ -538,13 +538,13 @@ SONDERA_MODE=remote python demo.py
 
 ## Known Limitations
 
-### Score fabrication (Task F — not yet implemented)
+### Score fabrication
 
 The Cedar policy trusts the `homology_score_int` value passed by the agent. A sufficiently adversarial or confused model could pass `homology_score_int=0` with a dangerous sequence, and Cedar would ALLOW it based on the fabricated value.
 
 This is documented by Tier 1 test #7: *"fabricated score=0 with Ricin sequence → ALLOW [known gap]"*.
 
-**The fix (Task F)** is a context provider middleware layer that runs `_calculate_max_homology()` server-side and overwrites the model-provided score before Cedar evaluates it. This makes the score entirely independent of the model's cooperation. It is deferred because it requires integrating a custom `before_tool` hook before the Sondera middleware layer — a more invasive change than the current architecture.
+**The fix ** is a context provider middleware layer that runs `_calculate_max_homology()` server-side and overwrites the model-provided score before Cedar evaluates it. This makes the score entirely independent of the model's cooperation. It is deferred because it requires integrating a custom `before_tool` hook before the Sondera middleware layer — a more invasive change than the current architecture.
 
 In practice, the system prompt instructs the model to always call `biosecurity_screener` first and pass its output directly. Integration tests (Tier 3) verify this behaviour. The screener output in the trajectory is auditable — any discrepancy between the screener result and the `synthesis_order` arguments is visible in the Sondera TUI.
 
@@ -555,23 +555,6 @@ The `HOMOLOGY_THRESHOLD = 0.40` (red) and amber boundary `0.250` are set empiric
 ### Threat DB coverage
 
 The current DB covers RIP-II toxins (Ricin, Abrin, Shiga). Biological threat proteins span a much broader space: binary toxins (anthrax), pore-forming toxins, neurotoxins, and engineered variants not present in public sequence databases. Production deployment would require integration with a curated, continuously updated database.
-
----
-
-## Roadmap
-
-| Task | Description | Status |
-|------|-------------|--------|
-| A | Expanded threat DB (Abrin, Shiga Toxin) | Done |
-| B | Multi-tier policy (Green / Amber / Red) | Done |
-| C | Smith-Waterman / BLOSUM62 alignment | Done |
-| D | POST_TOOL audit policy | Done |
-| E | Remote harness toggle (`SONDERA_MODE`) | Done |
-| F | Score fabrication hardening via context provider | Planned |
-
-### Task F detail
-
-Implement a `context_provider.py` module with an async `enrich_synthesis_order_context(tool_name, tool_args)` function. When `tool_name == "synthesis_order"`, re-run `_calculate_max_homology(tool_args["sequence"])` and overwrite `homology_score_int` and `threat_name` with the authoritative server-computed values before Sondera evaluates the Cedar policy. The model-provided score becomes display-only. This closes the fabrication gap: Cedar's decision is always based on a fresh alignment, regardless of what value the model passed.
 
 ---
 
